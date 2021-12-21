@@ -1,0 +1,15 @@
+.deleteButton {
+    border-radius: 50%;
+    background: red;
+    color: white;
+    padding: 10px;
+    cursor: pointer;
+}
+
+td {
+    border: 1px solid white;
+}
+
+thead {
+    font-weight: bold;
+}

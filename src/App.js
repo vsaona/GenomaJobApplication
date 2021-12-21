@@ -71,7 +71,7 @@ function App() {
         <label htmlFor="type">Tipo</label>
         <input id = "type" onChange = {handleTypeChange} name="type"></input>
         <label htmlFor="score">Calificación</label>
-        <input id = "score" onChange = {handleScoreChange} name="score"></input>
+        <input id = "score" type = "range" max = {5} min = {1} defaultValue={2} onChange = {handleScoreChange} name="score"></input>
         <label htmlFor="visited">Visitado</label>
         <input type = "checkbox" onChange = {handleVisitedChange} id = "visited" name="visited"></input>
 

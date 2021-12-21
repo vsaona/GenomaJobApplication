@@ -31,9 +31,11 @@ class MyServer(BaseHTTPRequestHandler):
         try:
             connection = sqlite3.connect("tocino.db")
             cursor = connection.cursor()
+            i = 0
             for line in cursor.execute('''SELECT * FROM lugares'''):
+                i += 1
                 a1, a2, a3, a4, a5 = line
-                places.append({"name": a1, "location": a2, "type": a3, "score": a4, "visited": True if str(a5) == "1" else False})
+                places.append({"id": "place_" + str(i), "name": a1, "location": a2, "type": a3, "score": a4, "visited": True if str(a5) == "1" else False})
         finally:
             connection.close()
 
@@ -46,8 +48,6 @@ class MyServer(BaseHTTPRequestHandler):
         post_data = json.loads(self.rfile.read(content_length).decode("utf-8"))
 
         if post_data["action"] == "ADD":
-            print("yes")
-            print(post_data["name"])
             try:
                 connection = sqlite3.connect("tocino.db")
                 cursor = connection.cursor()
@@ -60,15 +60,87 @@ class MyServer(BaseHTTPRequestHandler):
                 ))
                 connection.commit()
             except Exception as e:
-                print("Ups!")
                 print(e)
             finally:
                 connection.close()
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            self.wfile.write(bytes(str({"answer" : json.dumps(post_data)}), "utf-8"))
         
-        self.send_response(200)
-        self.send_header("Content-type", "application/json")
-        self.end_headers()
-        self.wfile.write(bytes(str({"answer" : json.dumps(post_data)}), "utf-8"))
+        elif post_data["action"] == "MODIFY":
+            try:
+                connection = sqlite3.connect("tocino.db")
+                cursor = connection.cursor()
+                cursor.execute('''UPDATE lugares SET name = '{}', location = '{}', type = '{}', score = '{}', visited = '{}')
+                                  WHERE name = '{}', location = '{}', type = '{}', score = {}, visited = {})'''.format(
+                    post_data["name"],
+                    post_data["location"],
+                    post_data["type"],
+                    post_data["score"],
+                    "1" if post_data["visited"] else "0",
+                    post_data["oldName"],
+                    post_data["oldLocation"],
+                    post_data["oldType"],
+                    post_data["oldScore"],
+                    "1" if post_data["oldVisited"] else "0"
+                ))
+                connection.commit()
+            except Exception as e:
+                print(e)
+            finally:
+                connection.close()
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            self.wfile.write(bytes(str({"answer" : json.dumps(post_data)}), "utf-8"))
+
+        elif post_data["action"] == "DELETE":
+            try:
+                connection = sqlite3.connect("tocino.db")
+                cursor = connection.cursor()
+                cursor.execute('''DELETE FROM lugares WHERE name = '{}' AND location = '{}' AND type = '{}' AND score = {} AND visited = {}'''.format(
+                    post_data["name"],
+                    post_data["location"],
+                    post_data["type"],
+                    post_data["score"],
+                    "1" if post_data["visited"] else "0"
+                ))
+                connection.commit()
+            except Exception as e:
+                print(e)
+            finally:
+                connection.close()
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            self.wfile.write(bytes(str({"answer" : json.dumps(post_data)}), "utf-8"))
+        
+        elif post_data["action"] == "FILTER": # This is for returning filtered data
+            places = []
+            try:
+                connection = sqlite3.connect("tocino.db")
+                cursor = connection.cursor()
+                i = 0
+                for line in cursor.execute('''SELECT * FROM lugares'''):
+                    i += 1
+                    should_be_sent = True 
+                    a1, a2, a3, a4, a5 = line
+                    row = {"id": "place_" + str(i), "name": a1, "location": a2, "type": a3, "score": a4, "visited": True if str(a5) == "1" else False}
+                    for filter in post_data["filters"]:
+                        if row[filter["criteria"]] != filter["value"]:
+                            should_be_sent = False
+                    if should_be_sent:
+                        places.append(row)
+            finally:
+                connection.close()
+
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            self.wfile.write(bytes(json.dumps(places), "utf-8"))
+        
+        
     def do_OPTIONS(self):
         self.send_response(200)
         self.send_header("Content-type", "application/json")
