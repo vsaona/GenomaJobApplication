@@ -37,3 +37,24 @@
     transform: rotate(20deg);
   }
 }
+
+h1, h2, h3, h4, h5 {
+  margin: 40px;
+}
+
+input {
+  margin: 10px;
+}
+
+button {
+  margin: 10px;
+}
+
+.card {
+  color: black;
+  padding: 20px;
+}
+
+input[type=checkbox] {
+  margin:auto;
+}

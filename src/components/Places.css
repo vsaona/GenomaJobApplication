@@ -1,9 +1,10 @@
 .deleteButton {
     border-radius: 50%;
-    background: red;
     color: white;
-    padding: 10px;
+    padding: auto;
     cursor: pointer;
+    width:42px;
+    height:42px;
 }
 
 td {
