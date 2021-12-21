@@ -75,9 +75,6 @@ function App() {
         <label htmlFor="visited">Visitado</label>
         <input type = "checkbox" onChange = {handleVisitedChange} id = "visited" name="visited"></input>
 
-        
-
-
         <button onClick={addPlace}> Añadir lugar </button>
       </header>
     </div>
