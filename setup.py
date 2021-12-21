@@ -122,16 +122,19 @@ class MyServer(BaseHTTPRequestHandler):
                 connection = sqlite3.connect("tocino.db")
                 cursor = connection.cursor()
                 i = 0
-                for line in cursor.execute('''SELECT * FROM lugares'''):
+                for line in cursor.execute('''SELECT * FROM lugares WHERE visited = 1'''):
                     i += 1
-                    should_be_sent = True 
                     a1, a2, a3, a4, a5 = line
                     row = {"id": "place_" + str(i), "name": a1, "location": a2, "type": a3, "score": a4, "visited": True if str(a5) == "1" else False}
-                    for filter in post_data["filters"]:
-                        if row[filter["criteria"]] != filter["value"]:
-                            should_be_sent = False
-                    if should_be_sent:
-                        places.append(row)
+
+                    # This was an idea to filter by any criteria, but since it is not necessary (yet), I'll leave this commented
+                    #
+                    # should_be_sent = True 
+                    # for filter in post_data["filters"]:
+                    #     if row[filter["criteria"]] != filter["value"]:
+                    #         should_be_sent = False
+                    # if should_be_sent:
+                    places.append(row)
             finally:
                 connection.close()
 

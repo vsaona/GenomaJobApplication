@@ -10,25 +10,30 @@ import axios from "axios";
  */
 
 function App() {
-  const [name, setName] = useState('Trigomar');
-  const [location, setLocation] = useState('Valparaíso, Chile');
-  const [type, setType] = useState('Pizza');
-  const [score, setScore] = useState(1);
+  const [name, setName] = useState('');
+  const [location, setLocation] = useState('');
+  const [type, setType] = useState('');
+  const [score, setScore] = useState(2);
   const [visited, setVisited] = useState(false);
+  const [places, setPlaces] = React.useState([]);
 
   function addPlace() {
     if(!name) {
       alert("Debe ingresar el nombre del local");
+      return;
     }
     if(!location) {
       alert("Debe ingresar la ubicación del local");
+      return;
     }
 
     axios.post("http://localhost:8089", {"action": "ADD",
       "name": name, "location": location, "type": type, "score":score, "visited": visited
-    }).then(
-      alert("Lugar guardado")
-    ).catch( (reason) => {
+    }).then(()=>{
+      alert("Lugar guardado");
+      axios.get("http://localhost:8089"
+      ).then((response) => setPlaces(response.data));
+    }).catch( (reason) => {
       console.log(reason);
       alert("Error al guardar el lugar");
     });
@@ -57,7 +62,7 @@ function App() {
         <h2>
           Lista de todos los lugares
         </h2>
-        <Places />
+        <Places places = {places} setPlaces = {setPlaces}/>
         
 
         <div className = "card">
