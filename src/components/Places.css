@@ -13,3 +13,7 @@ td {
 thead {
     font-weight: bold;
 }
+
+.invisible {
+    display: none;
+}
