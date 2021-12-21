@@ -72,8 +72,8 @@ class MyServer(BaseHTTPRequestHandler):
             try:
                 connection = sqlite3.connect("tocino.db")
                 cursor = connection.cursor()
-                cursor.execute('''UPDATE lugares SET name = '{}', location = '{}', type = '{}', score = '{}', visited = '{}')
-                                  WHERE name = '{}', location = '{}', type = '{}', score = {}, visited = {})'''.format(
+                cursor.execute('''UPDATE lugares SET name = '{}', location = '{}', type = '{}', score = '{}', visited = '{}'
+                                  WHERE name = '{}' AND location = '{}' AND type = '{}' AND score = {} AND visited = {}'''.format(
                     post_data["name"],
                     post_data["location"],
                     post_data["type"],

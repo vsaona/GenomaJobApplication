@@ -27,16 +27,13 @@ function Places(props) {
     visitedShouldBeVisible(true);
   }
 
-  /*elem.addEventListener('update', function (e) {
-    if(visitedAreVisible) {
-      axios.get("http://localhost:8089"
-      ).then((response) => props.setPlaces(response.data));
-    } else {
-      axios.post("http://localhost:8089", {"action": "FILTER"}
-      ).then((response) => props.setPlaces(response.data));
-    }
-  }, false);
-*/
+  function purelyRefreshPlaces() {
+    axios.get("http://localhost:8089"
+    ).then((response) => {
+      props.setPlaces(response.data)}
+      );
+  }
+
   function erase(name, location, type, score, visited) {
     axios.post("http://localhost:8089", {
       "action": "DELETE", "name": name, "location": location, "type": type, "score": score, "visited": visited
@@ -64,6 +61,25 @@ function Places(props) {
     }
   }
 
+  function editThis(e) {
+    var index = e.target.id.match(/(place_\d+)/)[0];
+    var place = props.places.find(element => element.id === index);
+    var field = e.target.id.match(/place_\d+_(\w+)/)[1];
+    var newValue = window.prompt('Ingrese nuevo valor:', e.target.innerText);
+    if(field === "score" && !newValue.match(/^\d+$/)) { // Don't why thins doesn't work
+      alert("¡La calificación debe ser un número!");
+      return;
+    }
+    axios.post("http://localhost:8089", {
+      "action": "MODIFY",
+      "oldName": place.name, "oldLocation": place.location, "oldType": place.type, "oldScore": place.score, "oldVisited": place.visited,
+      "name": ((field==="name")?newValue:place.name), "location": (field==="location"?newValue:place.location),
+      "type": (field==="type"?newValue:place.type), "score": (field==="score"?newValue:place.score), "visited": (field==="visited"?!place.visited:place.visited)}
+    ).then(() => {
+      purelyRefreshPlaces();
+    });
+  }
+
   return (
     <div><table className="places">
       <thead>
@@ -79,20 +95,20 @@ function Places(props) {
       <tbody>
       {props.places.map((place) => (
         <tr className={"place" + ((filtersAreVisible && (!place["name"].includes(nameFilter) || !place["location"].includes(locationFilter)))? " invisible" :" visible")} key={place.id}>
-          <td>{place.name}</td>
-          <td>{place.location}</td>
-          <td>{place.type}</td>
-          <td>{place.score}</td>
-          <td>{place.visited?
-            <div>Sí</div>:
-            <div>No</div>}
+          <td id={place.id + "_name"} onDoubleClick={editThis}>{place.name}</td>
+          <td id={place.id + "_location"} onDoubleClick={editThis}>{place.location}</td>
+          <td id={place.id + "_type"} onDoubleClick={editThis}>{place.type}</td>
+          <td id={place.id + "_score"} onDoubleClick={editThis}>{place.score}</td>
+          <td id={place.id + "_visited"} onDoubleClick={editThis}>{place.visited?
+            <div id={place.id + "_visited-yes"}>Sí</div>:
+            <div id={place.id + "_visited-no"}>No</div>}
           </td>
           <td><button className="deleteButton btn btn-danger" onClick = {()=>{erase(place.name, place.location, place.type, place.score, place.visited)}}>X</button></td>
         </tr>
       ))}
       </tbody>
     </table>
-    <button className = {"btn btn-secondary " + (filtersAreVisible? "invisible" : "visible")} onClick={()=>{setFiltersVisibility(!filtersAreVisible)}}> Filter data</button>
+    <button className = {"btn btn-secondary " + (filtersAreVisible? "invisible" : "visible")} onClick={()=>{setFiltersVisibility(!filtersAreVisible)}}> Filtrar datos</button>
     <h3 className = {filtersAreVisible? "visible" : "invisible"} > Filtros </h3>
     <div id = "filters" className = {filtersAreVisible? "visible" : "invisible"}>
       <div><label htmlFor="nameFilterInput">Nombre </label><input id = "nameFilterInput" onChange={(e)=>{filterByName(e.target.value)}}></input></div>
